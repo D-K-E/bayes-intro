@@ -2,21 +2,19 @@
 \file value.py Represents the value of functions in the case of PGMs
 """
 
-from typing import Callable, FrozenSet, List, Optional, Set, Tuple, Union
-
-from pygmodels.value.valuetype.abstractvalue import AbstractSetValue
-from pygmodels.value.valuetype.abstractvalue import AbstractValue
-from pygmodels.value.valuetype.abstractvalue import Countable
-from pygmodels.value.valuetype.abstractvalue import TypedSequence
-from pygmodels.value.valuetype.abstractvalue import Interval
-from pygmodels.value.valuetype.abstractvalue import NamedContainer
-from pygmodels.value.valuetype.abstractvalue import IntervalConf
-from pygmodels.utils import is_type, is_optional_type
-from pygmodels.utils import is_all_type
-from types import FunctionType
-from xml.etree import ElementTree as ET
 import math
-import pdb
+from types import FunctionType
+from typing import FrozenSet, Optional, Set, Union
+from xml.etree import ElementTree as ET
+
+from pygmodels.utils import is_all_type, is_optional_type, is_type
+from pygmodels.value.valuetype.abstractvalue import (
+    AbstractSetValue,
+    AbstractValue,
+    Interval,
+    IntervalConf,
+    TypedSequence,
+)
 
 
 class Value(AbstractValue):
@@ -482,191 +480,132 @@ class SetValue(Value, AbstractSetValue):
         return ET.tostring(m, encoding="unicode")
 
 
-class IntervalPair(NamedContainer):
-    "A special object to make interval set operations compatible with set ops"
+class NumericIntervalV2(Interval):
+    ""
 
-    def __init__(self, lower: Interval, upper: Interval):
-        lname = lower._name
-        uname = upper._name
-        name = "[" + lname + ", " + uname + "]"
-        super().__init__(name=name)
-        is_type(lower, "lower", Interval, True)
-        self._lower = min(lower, upper)
-
-        is_type(upper, "upper", Interval, True)
-        self._upper = max(lower, upper)
-
-    def __or__(self, other):
+    def length(self):
         """
-        \brief basic or operation for IntervalPair
-
-        There are several cases:
-        - argument is interval, we | with lower and upper:
-            - We obtain two intervals from the operation:
-                - we obtain an overlapping intervals: merge them and output an
-                  interval
-                - we obtain non overlapping intervals: output IntervalPair
-            - We obtain IntervalPair from one, interval from another:
-                - keep the resulting interval, ignore the resulting IntervalPair and output IntervalPair.
-            - We obtain 2 IntervalPairs from the operation:
-                - we output IntervalPair effectively creating a binary tree.
-        - argument is interval pair, we | with lower and upper:
-            - We propagate | op on lower and upper parts of the pair, and
-              combine the results with or again
+        Lebesque measure as per: Epps, 2014, p. 19
+        Originally defined for (a, b] type intervals but the derivation in
+        p. 19-20 show that results are equivalent for (a, b) as well.
         """
+        return self.upper - self.lower
 
-        def output(lower, upper):
-            """"""
-            if all(isinstance(a, Interval) for a in [lower, upper]):
-                is_overlapping = lower & upper
-                if is_overlapping:
-                    # overlapping intervals
-                    return lower | upper
-                else:
-                    # not overlapping intervals
-                    return IntervalPair(lower=lower, upper=upper)
-            elif any(isinstance(a, Interval) for a in [lower, upper]):
-                is_low, intvl = (
-                    (True, lower) if isinstance(lower, Interval) else (False, upper)
-                )
-                return IntervalPair(
-                    lower=intvl if is_low else self._lower,
-                    upper=intvl if not is_low else self._upper,
-                )
-            elif all(isinstance(a, IntervalPair) for a in [lower, upper]):
-                return IntervalPair(lower=lower, upper=upper)
-
-        if isinstance(other, Interval):
-            is_smaller = self > other
-            if is_smaller:
-                lower = self._lower | other
-                return output(lower, self._upper)
-            is_between = self._lower <= other and self._upper > other
-            if is_between:
-                lower = self._lower | other
-                upper = self._upper | other
-                return output(lower, upper)
-            is_greater = self < other
-            if is_greater:
-                upper = self._upper | other
-                return output(self._lower, upper)
-        #
-        is_type(other, "other", IntervalPair, True)
-        lower = self | other._lower
-        upper = self | other._upper
-        common = lower & upper
-        return output(common._lower, common._upper)
-
-    def __and__(self, other) -> FrozenSet[Interval]:
-        """
-        \brief basic and operation for IntervalPair
-
-        It outputs either an interval, interval pair or an empty set
-
-        There are several cases:
-        - argument is interval, we & with lower and upper:
-            - We obtain two intervals from the operation:
-                - we obtain an overlapping intervals: merge them and output an
-                  interval
-                - we obtain non overlapping intervals: output IntervalPair
-            - We obtain IntervalPair from one, interval from another:
-                - keep the resulting interval, ignore the resulting IntervalPair and output IntervalPair.
-            - We obtain 2 IntervalPairs from the operation:
-                - we output IntervalPair effectively creating a binary tree.
-        - argument is interval pair, we | with lower and upper:
-            - We propagate | op on lower and upper parts of the pair, and
-              combine the results with or again
-        """
-        if not other:
-            return frozenset()
-
-        if isinstance(other, Interval):
-            lower = self._lower & other
-            upper = self._upper & other
-            if all(isinstance(a, Interval) for a in [lower, upper]):
-                is_overlapping = lower & upper
-                if is_overlapping:
-                    # overlapping intervals
-                    return lower | upper
-                else:
-                    # not overlapping intervals
-                    return IntervalPair(lower=lower, upper=upper)
-
-            # lower empty set
-            if upper and not lower:
-                return upper
-            # upper empty set
-            if lower and not upper:
-                return lower
-            # both are empty set
-            if not lower and not upper:
-                return frozenset()
-        #
-        is_type(other, "other", IntervalPair, True)
-        lower = self & other._lower
-        upper = self & other._upper
-        return upper | lower
-
-    def __invert__(self) -> Interval:
-        l_i = ~self._lower
-        u_i = ~self._upper
-        return l_i & u_i
-
-    def __lt__(self, other) -> bool:
+    def __contains__(self, other: NumericValue):
         """"""
-        if isinstance(other, Interval):
-            c1 = self._lower < other
-            c2 = self._upper < other
-            return c1 and c2
+        return self._compare_lower(other) and self._compare_upper(other)
+
+    def __lt__(
+        self, other: Union[Interval, Set[Interval], FrozenSet[Interval]]
+    ) -> bool:
+        """
+        From Dawood, 2011, p. 9
+        """
+        if isinstance(other, NumericValue):
+            in_int = other in self
+            return (not in_int) and self.upper < other
+        if isinstance(other, NumericInterval):
+            s_up = self.upper
+            o_low = other.lower
+            in_self = other.lower in self
+            is_big = s_up < o_low
+            return (not in_self) and is_big
+        elif isinstance(other, (set, frozenset)):
+            is_all_type(other, "other", NumericInterval, True)
+            return all(self < o for o in other)
         elif isinstance(other, IntervalPair):
-            c1 = self._lower < other._lower
-            c2 = self._upper < other._lower
-            return c1 and c2
+            return self < other._lower
         else:
-            raise TypeError(f"unsupported argument type {type(other).__name__}")
+            raise TypeError(
+                f"can't compare 'other' of type {type(other).__name__}"
+                + " it has to be either NumericInterval or "
+                + "FrozenSet[NumericInterval]"
+            )
 
-    def __eq__(self, other) -> bool:
-        """"""
-        if not isinstance(other, IntervalPair):
-            return False
-        c1 = self._lower == other._lower
-        c2 = self._upper == other._upper
-        return c1 and c2
+    def __le__(
+        self, other: Union[Interval, Set[Interval], FrozenSet[Interval]]
+    ) -> bool:
+        """
+        Moore et al. 2009, p. 10
+        """
+        if isinstance(other, NumericInterval):
+            s_l = self.lower
+            s_u = self.upper
+            o_l = other.lower
+            o_u = other.upper
+            if o_l == s_l:
+                other_unbound = self.is_lower_bounded() and not other.is_lower_bounded()
+                is_low_inc = not other_unbound
+            else:
+                is_low_inc = o_l < s_l
+            if o_u == s_u:
+                other_unbound = not other.is_upper_bounded() and self.is_upper_bounded()
+                is_up_inc = not other_unbound
+            else:
+                is_up_inc = s_u < o_u
+            is_le = is_low_inc and is_up_inc
+            return is_le
+        elif isinstance(other, (set, frozenset)):
+            is_all_type(other, "other", NumericInterval, True)
+            return all(self <= o for o in other)
+        else:
+            raise TypeError(
+                f"can't compare 'other' of type {type(other).__name__}"
+                + " it has to be either NumericInterval or "
+                + "FrozenSet[NumericInterval] or IntervalPair"
+            )
 
-    def __le__(self, other) -> bool:
+    def __decide_conf(self, other, l_minmax_fn, u_minmax_fn):
         """"""
-        c1 = self < other
-        c2 = self == other
-        return c1 or c2
+        is_l_closed = l_minmax_fn()
+        is_u_closed = u_minmax_fn()
+        if is_u_closed and is_l_closed:
+            conf = None
+        elif is_u_closed and not is_l_closed:
+            conf = IntervalConf.Lower
+        elif not is_u_closed and is_l_closed:
+            conf = IntervalConf.Upper
+        elif not is_u_closed and not is_l_closed:
+            conf = IntervalConf.Both
+        return conf
 
-    def __gt__(self, other) -> bool:
-        """"""
-        c1 = self <= other
-        return not c1
+    def __and__(
+        self, other: Union[Interval, set, frozenset]
+    ) -> Union[FrozenSet[Interval], Interval]:
+        """
+        From Jaulin, 2001, p. 18
+        """
+        if isinstance(other, NumericInterval):
+            # check if there is overlap
+            if (self < other) or (other < self):
+                return frozenset()
+            lower = max(self.lower, other.lower)
+            upper = min(self.upper, other.upper)
+            is_l_closed_fn = (
+                lambda: lower in self if lower == self.lower else lower in other
+            )
+            is_u_closed_fn = (
+                lambda: upper in self if upper == self.upper else upper in other
+            )
+            conf = self.__decide_conf(
+                other=other, l_minmax_fn=is_l_closed_fn, u_minmax_fn=is_u_closed_fn
+            )
+            if lower <= upper:
+                return NumericInterval(
+                    lower=lower, upper=upper, name=None, open_on=conf
+                )
+            else:
+                raise ValueError(f"Unexpected interval error {self} and {other}")
 
-    def __ge__(self, other) -> bool:
-        """"""
-        c1 = self > other
-        c2 = self == other
-        return c1 or c2
-
-    def __str__(self) -> str:
-        """"""
-        m = ET.Element(type(self).__name__)
-        if self._name is not None:
-            m.set("name", self._name)
-        #
-        lstr = ET.fromstring(str(self._lower))
-        ustr = ET.fromstring(str(self._upper))
-        m.append(lstr)
-        m.append(ustr)
-        ET.indent(m)
-        return ET.tostring(m, encoding="unicode")
-
-    def __hash__(self):
-        """"""
-        s = str(self)
-        return hash(s)
+        elif isinstance(other, (set, frozenset)):
+            if other:
+                raise ValueError("only empty set is accepted as argument")
+            return frozenset()
+        else:
+            raise TypeError(
+                "other must have type NumericInterval or IntervalPair"
+                + f" or empty set but it has {type(other).__name__}"
+            )
 
 
 class NumericInterval(Interval):

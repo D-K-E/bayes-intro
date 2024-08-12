@@ -3,14 +3,13 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Union, Callable, NewType, Optional
-from collections.abc import MutableSet, MutableSequence, Sequence
-from collections.abc import Iterator
-from pygmodels.utils import is_all_type, is_type, is_optional_type
+from collections.abc import Iterator, MutableSequence, MutableSet, Sequence
 from collections.abc import Set as CSet
-from types import GeneratorType
 from enum import Enum, auto
+from types import GeneratorType
+from typing import Callable, Optional, Union
 
+from pygmodels.utils import is_all_type, is_optional_type, is_type
 
 BinaryValue = bool
 NumericValue = Union[float, int, BinaryValue]
@@ -136,7 +135,7 @@ class Countable(NamedContainer, Iterator):
         if val:
             return val
         # iterate until the next one
-        while (val is None) or (is_end == False):
+        while (val is None) or (not is_end):
             val, is_end = self.__fetch__()
             if is_end:
                 raise StopIteration
