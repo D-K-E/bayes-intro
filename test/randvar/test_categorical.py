@@ -9,7 +9,7 @@ from pygmodels.randvar.randvarmodel.categorical import (
     NumCatRandomVariable,
 )
 from pygmodels.randvar.randvartype.baserandvar import BaseEvidence
-from pygmodels.utils import is_type, type_check
+from pygmodels.utils import is_type
 from pygmodels.value.codomain import CodomainValue
 from pygmodels.value.domain import DomainValue
 

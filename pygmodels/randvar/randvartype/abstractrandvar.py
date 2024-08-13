@@ -1,21 +1,20 @@
 """!
 \file abstractrandvar.py Represents an abstract random variable
 """
-from abc import ABC, abstractmethod
-from typing import Callable, List, Optional
+
+from abc import abstractmethod
+from typing import Optional
+from xml.etree import ElementTree as ET
 
 from pygmodels.graph.graphtype.abstractobj import (
     AbstractGraphObj,
     AbstractNode,
 )
-from pygmodels.value.valuetype.codomain import Codomain, CodomainValue
-from pygmodels.value.valuetype.codomain import Range
-from pygmodels.value.valuetype.domain import Domain, DomainValue
-from pygmodels.value.valuetype.value import NumericValue, Value
-from pygmodels.value.valuetype.value import SubsetValue
 from pygmodels.value.valuetype.abstractvalue import Countable
-
-from xml.etree import ElementTree as ET
+from pygmodels.value.valuetype.codomain import CodomainValue
+from pygmodels.value.valuetype.domain import DomainValue
+from pygmodels.value.valuetype.value import SetValue, Value
+from pygmodels.utils import is_all_type
 
 
 class PossibleOutcome(CodomainValue):
@@ -67,7 +66,7 @@ class PossibleOutcomes(Countable):
         return s_in_o and o_in_s
 
 
-class Event(SubsetValue):
+class Event(SetValue):
     """"""
 
     def __init__(self, iterable, name):

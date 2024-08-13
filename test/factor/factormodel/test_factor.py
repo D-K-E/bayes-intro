@@ -1,14 +1,12 @@
 """!
 test for factor.py
 """
-import math
-import unittest
-from random import choice
 
-from pygmodels.factor.factor import Factor
+import unittest
+
+from pygmodels.factor.factormodel.factor import Factor
 from pygmodels.factor.factorfunc.factoranalyzer import FactorNumericAnalyzer
 from pygmodels.factor.factorfunc.factorops import FactorBoolOps, FactorOps
-from pygmodels.graph.graphtype.edge import Edge, EdgeType
 from pygmodels.pgm.pgmtype.randomvariable import NumCatRVariable
 
 
@@ -125,9 +123,7 @@ class TestFactor(unittest.TestCase):
             else:
                 raise ValueError("unknown arg")
 
-        self.AB = Factor(
-            gid="AB", scope_vars=set([self.Af, self.Bf]), factor_fn=phiAB
-        )
+        self.AB = Factor(gid="AB", scope_vars=set([self.Af, self.Bf]), factor_fn=phiAB)
 
         def phiBC(scope_product):
             """"""
@@ -143,9 +139,7 @@ class TestFactor(unittest.TestCase):
             else:
                 raise ValueError("unknown arg")
 
-        self.BC = Factor(
-            gid="BC", scope_vars=set([self.Bf, self.Cf]), factor_fn=phiBC
-        )
+        self.BC = Factor(gid="BC", scope_vars=set([self.Bf, self.Cf]), factor_fn=phiBC)
 
     def data_3(self):
         """"""
@@ -164,9 +158,7 @@ class TestFactor(unittest.TestCase):
             else:
                 raise ValueError("unknown arg")
 
-        self.CD = Factor(
-            gid="CD", scope_vars=set([self.Cf, self.Df]), factor_fn=phiCD
-        )
+        self.CD = Factor(gid="CD", scope_vars=set([self.Cf, self.Df]), factor_fn=phiCD)
 
         def phiDA(scope_product):
             """"""
@@ -182,9 +174,7 @@ class TestFactor(unittest.TestCase):
             else:
                 raise ValueError("unknown arg")
 
-        self.DA = Factor(
-            gid="DA", scope_vars=set([self.Df, self.Af]), factor_fn=phiDA
-        )
+        self.DA = Factor(gid="DA", scope_vars=set([self.Df, self.Af]), factor_fn=phiDA)
 
     def setUp(self):
         """"""
@@ -217,9 +207,7 @@ class TestFactor(unittest.TestCase):
             else:
                 raise ValueError("unknown arg")
 
-        self.aB = Factor(
-            gid="ab", scope_vars=set([self.af, self.Bf]), factor_fn=phiaB
-        )
+        self.aB = Factor(gid="ab", scope_vars=set([self.af, self.Bf]), factor_fn=phiaB)
 
         def phibc(scope_product):
             """"""
@@ -235,9 +223,7 @@ class TestFactor(unittest.TestCase):
             else:
                 raise ValueError("unknown arg")
 
-        self.bc = Factor(
-            gid="bc", scope_vars=set([self.Bf, self.Cf]), factor_fn=phibc
-        )
+        self.bc = Factor(gid="bc", scope_vars=set([self.Bf, self.Cf]), factor_fn=phibc)
 
     def test_id(self):
         """"""
@@ -290,9 +276,7 @@ class TestFactor(unittest.TestCase):
 
     def test_marginal_joint(self):
         """ """
-        mjoint = self.f.marginal_joint(
-            set([("int", 0.1), ("grade", 0.4), ("dice", 2)])
-        )
+        mjoint = self.f.marginal_joint(set([("int", 0.1), ("grade", 0.4), ("dice", 2)]))
         dmarg = self.dice.marginal(2)
         imarg = self.intelligence.marginal(0.1)
         gmarg = self.grade.marginal(0.4)

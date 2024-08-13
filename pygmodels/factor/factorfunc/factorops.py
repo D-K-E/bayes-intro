@@ -5,14 +5,13 @@ The main objective of these functions is to operate on a given factor
 or a set of factors.
 """
 
-from functools import reduce as freduce
-from itertools import combinations, product
-from typing import Callable, FrozenSet, List, Optional, Set, Tuple, Union
-from uuid import uuid4
+from itertools import product
+from typing import Callable, Optional, Set, Tuple
+
+from pygmodels.value.valuetype.domain import DomainSample
 
 from pygmodels.factor.factortype.abstractfactor import (
     AbstractFactor,
-    DomainSliceSet,
     DomainSubset,
     FactorCartesianProduct,
     FactorDomain,
@@ -21,8 +20,8 @@ from pygmodels.factor.factortype.abstractfactor import (
 from pygmodels.randvar.randvartype.abstractrandvar import (
     AbstractRandomVariable,
 )
-from pygmodels.utils import is_type, type_check
-from pygmodels.value.value import NumericValue
+from pygmodels.utils import is_type, is_all_type
+from pygmodels.value.valuetype.value import NumericValue
 
 
 class FactorFactorableOps:
@@ -135,7 +134,7 @@ class FactorFactorableOps:
         products = FactorOps.cartesian(f)
         fn = f.phi
 
-        def psi(scope_product: DomainSliceSet):
+        def psi(scope_product: DomainSample):
             """"""
             s = set(scope_product)
             diffs = set([p for p in products if s.issubset(p) is True])
@@ -181,7 +180,7 @@ class FactorFactorableOps:
         products = FactorOps.cartesian(f)
         fn = f.phi
 
-        def psi(scope_product: DomainSliceSet):
+        def psi(scope_product: DomainSample):
             """"""
             s = set(scope_product)
             diffs = set([p for p in products if s.issubset(p) is True])
@@ -282,11 +281,11 @@ class FactorOps:
         \return tuple whose first element is the resulting factor and second
         element is the accumulated product.
         """
-        type_check(
-            val=f,
-            other=other,
-            shouldRaiseError=True,
-            originType=AbstractFactor,
+        is_all_type(
+            field_value=[f, other],
+            raise_error=True,
+            field_type=AbstractFactor,
+            field_name="product factors",
         )
         #
         svar = f.scope_vars()
@@ -307,9 +306,7 @@ class FactorOps:
                     prod_s = set(iproduct)
                     if prod_s.issubset(ss) and prod_s.issubset(ost):
                         common = ss.union(ost)
-                        multi = product_fn(
-                            f.factor_fn(ss), other.factor_fn(ost)
-                        )
+                        multi = product_fn(f.factor_fn(ss), other.factor_fn(ost))
                         common_match.add((multi, tuple(common)))
                         prod = accumulator(multi, prod)
 
@@ -392,15 +389,13 @@ class FactorOps:
         """
         is_type(val=f, originType=AbstractFactor, shouldRaiseError=True)
         return [
-            s.value_set(
-                value_filter=value_filter, value_transform=value_transform
-            )
+            s.value_set(value_filter=value_filter, value_transform=value_transform)
             for s in D
             if rvar_filter(s)
         ]
 
     @staticmethod
-    def phi_normal(f: AbstractFactor, scope_product: DomainSliceSet) -> float:
+    def phi_normal(f: AbstractFactor, scope_product: DomainSample) -> float:
         """!
         \brief normalize a given factor value
 
@@ -518,7 +513,9 @@ class FactorOps:
         # check for values out of domain of this factor
         scope_ids = set([s.id() for s in f.scope_vars()])
         if sids.issubset(scope_ids) is False:
-            msg = "Given argument domain include values out of the domain of this factor"
+            msg = (
+                "Given argument domain include values out of the domain of this factor"
+            )
             raise ValueError(msg)
         svars = set([s for s in f.scope_vars() if s.id() in sids])
         return svars

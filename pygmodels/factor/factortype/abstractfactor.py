@@ -2,18 +2,17 @@
 """!
 \file abstractfactor.py Contains abstract class for the factor
 """
-from abc import ABC, abstractmethod
-from typing import Callable, FrozenSet, List, Set, Tuple
+
+from abc import abstractmethod
+from typing import Callable, FrozenSet, List, Set
 
 from pygmodels.graph.graphtype.abstractobj import AbstractGraphObj
 from pygmodels.randvar.randvartype.abstractrandvar import (
     AbstractRandomVariable,
 )
-from pygmodels.value.valuetype.value import OrderedFiniteVSet
 from pygmodels.value.valuetype.abstractvalue import TypedMutableSet
-from pygmodels.value.valuetype.abstractvalue import TypedOrderedSequence
-from pygmodels.value.valuetype.abstractvalue import FiniteTypedSet
 from pygmodels.value.valuetype.abstractvalue import OrderedFiniteTypedSequence
+from pygmodels.value.valuetype.domain import OrderedFiniteDomain
 
 
 class FactorScope(TypedMutableSet):
@@ -23,9 +22,9 @@ class FactorScope(TypedMutableSet):
         super().__init__(iterable, AbstractRandomVariable)
 
 
-OrderedSubset = OrderedFiniteVSet
+OrderedSubset = OrderedFiniteTypedSequence
 FactorDomainValue = FrozenSet[OrderedSubset]
-DomainSubset = DomainSliceSet
+DomainSubset = OrderedFiniteDomain
 FactorDomain = List[DomainSubset]
 FactorCartesianProduct = FactorDomain
 
@@ -47,6 +46,6 @@ class AbstractFactor(AbstractGraphObj):
         return self.partition_value(vd=vd)
 
     @abstractmethod
-    def __call__(self, scope_product: DomainSliceSet):
+    def __call__(self, scope_product: DomainSubset):
         """"""
         raise NotImplementedError

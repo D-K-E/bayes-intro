@@ -1,16 +1,15 @@
 """!
 Factor analyzer test cases
 """
-import math
-import unittest
-from random import choice
 
-from pygmodels.factor.factor import BaseFactor, Factor
+import unittest
+
+from pygmodels.factor.factortype.basefactor import BaseFactor
+from pygmodels.factor.factormodel.factor import Factor
 from pygmodels.factor.factorfunc.factoranalyzer import (
     FactorAnalyzer,
     FactorNumericAnalyzer,
 )
-from pygmodels.graph.graphtype.edge import Edge, EdgeType
 from pygmodels.pgm.pgmtype.randomvariable import NumCatRVariable
 
 
@@ -45,9 +44,7 @@ class TestFactorAnalyzer(unittest.TestCase):
             else:
                 raise ValueError("unknown arg")
 
-        self.bc = Factor(
-            gid="bc", scope_vars=set([self.Bf, self.Cf]), factor_fn=phibc
-        )
+        self.bc = Factor(gid="bc", scope_vars=set([self.Bf, self.Cf]), factor_fn=phibc)
         self.bc_b = BaseFactor(
             gid="bc", scope_vars=set([self.Bf, self.Cf]), factor_fn=phibc
         )

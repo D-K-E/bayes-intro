@@ -1,11 +1,12 @@
 """
 object contained in a graph
 """
+
 from copy import deepcopy
+from typing import Optional
 
 from pygmodels.graph.graphtype.abstractobj import AbstractGraphObj
-from pygmodels.utils import is_type, is_optional_type
-from typing import Optional
+from pygmodels.utils import is_optional_type, is_type
 
 
 class GraphObject(AbstractGraphObj):

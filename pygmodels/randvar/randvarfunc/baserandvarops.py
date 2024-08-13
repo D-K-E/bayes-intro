@@ -3,23 +3,19 @@
 defined for objects inheriting from \see BaseRandomVariable.
 """
 
-from typing import Any, Callable, FrozenSet, List, Optional, Set, Tuple
 from types import FunctionType, LambdaType
+from typing import Any, Callable, FrozenSet, Tuple
 from uuid import uuid4
 
 from pygmodels.randvar.randvartype.abstractrandvar import (
     AbstractEvidence,
     AbstractRandomVariable,
-    PossibleOutcomes,
 )
 from pygmodels.randvar.randvartype.baserandvar import (
-    BaseEvidence,
     BaseRandomVariable,
 )
 from pygmodels.utils import is_type
-from pygmodels.value.codomain import CodomainValue, Outcome
-from pygmodels.value.codomain import Range, RangeSubset
-from pygmodels.value.value import NumericValue
+from pygmodels.value.valuetype.codomain import CodomainValue, Range, RangeSubset
 
 
 class RandomVariableOps:

@@ -2,17 +2,14 @@
 \file domain.py Represents the domain of a function. It can be anything.
 """
 
-from typing import Any, FrozenSet, List, Optional, Set, Tuple
-from typing import NewType
 
-from pygmodels.value.valuetype.abstractvalue import AbstractSetValue
-from pygmodels.value.valuetype.abstractvalue import TypedMutableSet
-from pygmodels.value.valuetype.abstractvalue import TypedOrderedSequence
-from pygmodels.value.valuetype.abstractvalue import FiniteTypedSet
-from pygmodels.value.valuetype.abstractvalue import OrderedFiniteTypedSequence
+from pygmodels.value.valuetype.abstractvalue import (
+    FiniteTypedSet,
+    OrderedFiniteTypedSequence,
+    TypedMutableSet,
+    TypedOrderedSequence,
+)
 from pygmodels.value.valuetype.value import SetValue
-from pygmodels.value.valuetype.value import Value
-from pygmodels.utils import is_all_type, is_type
 
 
 class DomainValue(SetValue):

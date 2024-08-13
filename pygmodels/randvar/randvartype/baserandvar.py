@@ -4,24 +4,24 @@ random variable interface. Inheriting from this object would make your object
 usable for all the operations defined in \see baserandvarops.py.
 """
 
-from typing import Callable, List, Optional, Set, Tuple, Dict
 from collections.abc import Iterable
+from types import FunctionType
+from typing import Callable, Optional
 
-from pygmodels.graph.graphtype.node import Node
 from pygmodels.randvar.randvartype.abstractrandvar import (
-    AbstractEvidence,
     AbstractEvent,
+    AbstractEvidence,
     AbstractRandomVariable,
     AbstractRandomVariableMember,
     PossibleOutcome,
+    PossibleOutcomes,
 )
+from pygmodels.graph.graphtype.graphobj import GraphObject
+from pygmodels.value.valuetype.domain import Domain, DomainSample
+from pygmodels.value.valuetype.codomain import CodomainValue
 
 # for type checking
-from pygmodels.utils import is_type, is_optional_type
-from pygmodels.value.value import NumericValue
-from pygmodels.randvar.randvartype.abstractrandvar import PossibleOutcomes
-from pygmodels.randvar.randvartype.abstractrandvar import PossibleOutcome
-from types import FunctionType
+from pygmodels.utils import is_optional_type, is_type
 
 
 class BaseRandomVariableMember(AbstractRandomVariableMember, GraphObject):
@@ -67,7 +67,7 @@ class BaseEvidence(AbstractEvidence, BaseRandomVariableMember):
             member_id=evidence_id,
             randvar_id=randvar_id,
             data=data,
-            description=description,
+            # description=description,
         )
         is_type(value, "value", CodomainValue, True)
         self.val = value
@@ -138,9 +138,9 @@ class BaseEvent(AbstractEvent, BaseRandomVariableMember):
         is_type(func, "func", FunctionType, True)
         self.f = func
 
-    def __call__(self, sample: DomainValue) -> PossibleOutcome:
+    def __call__(self, sample: DomainSample) -> PossibleOutcome:
         """"""
-        is_type(sample, "sample", DomainValue, True)
+        is_type(sample, "sample", DomainSample, True)
         return self.f(sample)
 
 
@@ -153,9 +153,9 @@ class RandomVariableInitializer:
         self,
         event: BaseEvent,
         event_input: Optional[Domain] = None,
-        input_sampler: Callable[[Domain], Iterable[DomainValue]] = lambda xs: frozenset(
-            xs
-        ),
+        input_sampler: Callable[
+            [Domain], Iterable[DomainSample]
+        ] = lambda xs: frozenset(xs),
         marginal_distribution: Optional[
             Callable[[CodomainValue], float]
         ] = lambda x: 1.0,
@@ -206,6 +206,7 @@ class RandomVariableInitializer:
                     out_count[output] = 0
                 out_count[output] += 1
                 sample_count += 1
+
             #
             def dist_fn(out: CodomainValue):
                 value = out_count[out] / sample_count

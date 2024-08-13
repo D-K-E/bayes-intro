@@ -2,15 +2,14 @@
 Unittests for baserandvar.py operations
 """
 
-import math
 import unittest
 
 from pygmodels.randvar.randvartype.baserandvar import (
     BaseEvidence,
     BaseRandomVariable,
 )
-from pygmodels.value.codomain import CodomainValue
-from pygmodels.value.domain import DomainValue
+from pygmodels.value.valuetype.codomain import CodomainValue
+from pygmodels.value.valuetype.domain import DomainValue
 
 
 class BaseRandvarTest(unittest.TestCase):

@@ -2,27 +2,25 @@
 \file basefactor.py Basic factor that implements an AbstractFactor
 """
 
-from functools import reduce as freduce
-from itertools import combinations, product
-from typing import Callable, Optional, Set
+from itertools import product
+from types import FunctionType, LambdaType
+from typing import Callable, Optional
 from uuid import uuid4
 
 from pygmodels.factor.factortype.abstractfactor import (
     AbstractFactor,
-    FactorDomainValue,
     DomainSubset,
     FactorDomain,
+    FactorDomainValue,
     FactorScope,
 )
 from pygmodels.graph.graphtype.graphobj import GraphObject
+from pygmodels.randvar.randvarfunc.baserandvarops import RandomVariableOps
 from pygmodels.randvar.randvartype.abstractrandvar import (
     AbstractRandomVariable,
 )
-from pygmodels.randvar.randvarops.baserandvarops import RandomVariableOps
-from pygmodels.value.value import NumericValue
-
-from pygmodels.utils import is_type, is_optional_type
-from types import FunctionType, LambdaType
+from pygmodels.utils import is_optional_type, is_type
+from pygmodels.value.valuetype.value import NumericValue
 
 
 class BaseFactor(AbstractFactor, GraphObject):

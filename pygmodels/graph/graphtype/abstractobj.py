@@ -1,23 +1,15 @@
 """
 Abstract Node of a graph
 """
+
 from abc import ABC, abstractmethod
-from collections import namedtuple
-from copy import deepcopy
 from enum import Enum
 from typing import (
-    Callable,
     Dict,
     FrozenSet,
-    List,
-    NewType,
-    Optional,
-    Set,
     Tuple,
     Union,
 )
-
-from pygmodels.utils import is_type
 
 
 class AbstractInfo(ABC):

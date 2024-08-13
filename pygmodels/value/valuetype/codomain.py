@@ -4,20 +4,18 @@ with probabilities and related concepts the codomain should be a measurable
 value
 """
 
-from typing import Any, Callable, Dict, FrozenSet, List, Optional, Set, Tuple
-
-from pygmodels.utils import is_type, is_optional_type
-from pygmodels.value.valuetype.value import SetValue
-from pygmodels.value.valuetype.value import Value
-from pygmodels.value.valuetype.value import NumericValue
-from pygmodels.value.valuetype.abstractvalue import TypedMutableSet
-from pygmodels.value.valuetype.abstractvalue import TypedOrderedSequence
-from pygmodels.value.valuetype.abstractvalue import FiniteTypedSet
-from pygmodels.value.valuetype.abstractvalue import OrderedFiniteTypedSequence
-from pygmodels.value.valuetype.abstractvalue import NamedContainer
-from pygmodels.value.valuetype.abstractvalue import Interval as AbsInterval
-
+from typing import Callable, Optional
 from xml.etree import ElementTree as ET
+
+from pygmodels.utils import is_optional_type, is_type
+from pygmodels.value.valuetype.abstractvalue import (
+    FiniteTypedSet,
+    OrderedFiniteTypedSequence,
+    TypedMutableSet,
+    TypedOrderedSequence,
+)
+from pygmodels.value.valuetype.abstractvalue import Interval as AbsInterval
+from pygmodels.value.valuetype.value import NumericValue, SetValue, Value
 
 
 class CodomainValue(SetValue):

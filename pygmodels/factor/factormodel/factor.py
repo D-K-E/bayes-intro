@@ -4,24 +4,15 @@
 Defining a factor from Koller and Friedman 2009, p. 106-107
 """
 
-from functools import reduce as freduce
-from itertools import combinations, product
-from pprint import pprint
-from typing import Callable, FrozenSet, List, Optional, Set, Tuple, Union
-from uuid import uuid4
+from typing import Callable, Optional, Set, Tuple, Union
 
-from pygmodels.factor.factorfunc.factorops import FactorBoolOps, FactorOps
+from pygmodels.factor.factorfunc.factorops import FactorOps
 from pygmodels.factor.factortype.abstractfactor import (
     AbstractFactor,
-    DomainSliceSet,
-    DomainSubset,
-    FactorDomain,
-    FactorScope,
 )
 from pygmodels.factor.factortype.basefactor import BaseFactor
-from pygmodels.graph.graphtype.graphobj import GraphObject
 from pygmodels.pgm.pgmtype.randomvariable import NumCatRVariable
-from pygmodels.value.value import NumericValue
+from pygmodels.value.valuetype.value import NumericValue
 
 
 class Factor(BaseFactor):

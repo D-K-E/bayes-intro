@@ -3,19 +3,18 @@ Test probabilistic graph model
 """
 
 import cProfile
-import pdb
 import unittest
 
 # profiler related
 from pstats import Stats
-from uuid import uuid4
 
-from pygmodels.factor.factor import Factor
+from pygmodels.factor.factormodel.factor import Factor
 from pygmodels.factor.factorfunc.factoralg import FactorAlgebra
 from pygmodels.factor.factorfunc.factorops import FactorOps
 from pygmodels.graph.graphtype.edge import Edge, EdgeType
 from pygmodels.pgm.pgmtype.pgmodel import PGModel, min_unmarked_neighbours
-#from pygmodels.pgm.pgmtype.randomvariable import NumCatRVariable
+
+# from pygmodels.pgm.pgmtype.randomvariable import NumCatRVariable
 from pygmodels.randvar.randvarmodel.categorical import (
     NumCatRandomVariable as NumCatRVariable,
 )
